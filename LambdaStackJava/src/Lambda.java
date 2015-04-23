@@ -12,34 +12,16 @@ import java.util.List;
 public final class Lambda {
 
     public static void main(String[] args) throws Exception {
-        SparkConf sparkConf = new SparkConf().setAppName("JavaSparkPi");
-        JavaSparkContext jsc = new JavaSparkContext(sparkConf);
+        public static void main(String[] args) throws Exception {
+            SparkConf sparkConf = new SparkConf().setAppName("Java Spark Streaming Twitter");
+            JavaSparkContext jsc = new JavaSparkContext(sparkConf);
+            JavaStreamingContext jssc = new JavaStreamingContext(jsc, Durations.seconds(1));
 
-        int slices = (args.length == 1) ? Integer.parseInt(args[0]) : 2;
-        int n = 100000 * slices;
-        List<Integer> l = new ArrayList<Integer>(n);
-        for (int i = 0; i < n; i++) {
-            l.add(i);
+            String[] filters = new String[] {"playstation"};
+            JavaReceiverInputDStream<Status> receiverStream = TwitterUtils.createStream(jssc,filters);
+
+            receiverStream.print();
+            jssc.start();
+            jssc.awaitTermination();
         }
-
-        JavaRDD<Integer> dataSet = jsc.parallelize(l, slices);
-
-        int count = dataSet.map(new Function<Integer, Integer>() {
-            @Override
-            public Integer call(Integer integer) {
-                double x = Math.random() * 2 - 1;
-                double y = Math.random() * 2 - 1;
-                return (x * x + y * y < 1) ? 1 : 0;
-            }
-        }).reduce(new Function2<Integer, Integer, Integer>() {
-            @Override
-            public Integer call(Integer integer, Integer integer2) {
-                return integer + integer2;
-            }
-        });
-
-        System.out.println("Pi is roughly " + 4.0 * count / n);
-
-        jsc.stop();
-    }
 }
