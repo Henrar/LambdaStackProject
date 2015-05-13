@@ -6,6 +6,7 @@
 package pl.edu.agh.iosr.lsf;
 
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -16,6 +17,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/tweets")
 public class TweetController {
     
+    @RequestMapping(method = RequestMethod.GET)
+    public String tweet() {
+        return "Hello REST";
+    }
     
     
 }
