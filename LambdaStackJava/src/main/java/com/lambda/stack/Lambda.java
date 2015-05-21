@@ -5,6 +5,8 @@ import org.apache.spark.streaming.*;
 import org.apache.spark.streaming.twitter.*;
 import org.apache.spark.streaming.api.java.*;
 import twitter4j.*;
+import org.apache.log4j.Logger;
+import org.apache.log4j.Level;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -16,7 +18,7 @@ import java.util.List;
 
 /**
  * @author Henrar
- * @version 0.1
+ * @version 0.2
  */
 public final class Lambda {
     public static void configureTwitterCredentials() throws Exception {
@@ -80,6 +82,9 @@ public final class Lambda {
         String sparkUrl = "local[4]";
         String jarFile = "/home/ubuntu/jst.jar";
         Lambda.configureTwitterCredentials();
+
+        Logger.getLogger("org").setLevel(Level.OFF);
+        Logger.getLogger("akka").setLevel(Level.OFF);
 
         JavaStreamingContext ssc = new JavaStreamingContext(sparkUrl, "Twitter", new Duration(1000), sparkHome, new String[]{jarFile});
 
