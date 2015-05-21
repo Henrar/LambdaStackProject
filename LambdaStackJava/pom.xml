@@ -26,7 +26,17 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <finalName>uber-${artifactId}-${version}</finalName>
+			<filters>
+        			<filter>
+            				<artifact>*:*</artifact>
+            				<excludes>
+                				<exclude>META-INF/*.SF</exclude>
+                				<exclude>META-INF/*.DSA</exclude>
+               					<exclude>META-INF/*.RSA</exclude>
+            				</excludes>
+       				 </filter>
+    			</filters>
+                    <finalName>${artifactId}</finalName>
                     <source>1.7</source>
                     <target>1.7</target>
                 </configuration>
