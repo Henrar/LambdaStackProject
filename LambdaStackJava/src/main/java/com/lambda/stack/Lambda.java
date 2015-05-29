@@ -1,12 +1,13 @@
 package com.lambda.stack;
 
-import org.apache.spark.api.java.function.*;
-import org.apache.spark.streaming.*;
-import org.apache.spark.streaming.twitter.*;
-import org.apache.spark.streaming.api.java.*;
-import twitter4j.*;
-import org.apache.log4j.Logger;
 import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+import org.apache.spark.api.java.function.Function;
+import org.apache.spark.streaming.Duration;
+import org.apache.spark.streaming.api.java.JavaDStream;
+import org.apache.spark.streaming.api.java.JavaStreamingContext;
+import org.apache.spark.streaming.twitter.TwitterUtils;
+import twitter4j.Status;
 
 /**
  * @author Henrar
