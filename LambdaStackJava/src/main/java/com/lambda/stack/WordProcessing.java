@@ -1,7 +1,7 @@
 package com.lambda.stack;
 
 import edu.stanford.nlp.ling.CoreAnnotations;
-import edu.stanford.nlp.neural.rnn.RNNCoreAnnotations;
+import edu.stanford.nlp.rnn.RNNCoreAnnotations;
 import edu.stanford.nlp.pipeline.Annotation;
 import edu.stanford.nlp.pipeline.StanfordCoreNLP;
 import edu.stanford.nlp.sentiment.SentimentCoreAnnotations;
@@ -27,7 +27,7 @@ public class WordProcessing {
             int longest = 0;
             Annotation annotation = pipeline.process(tweet);
             for (CoreMap sentence : annotation.get(CoreAnnotations.SentencesAnnotation.class)) {
-                Tree tree = sentence.get(SentimentCoreAnnotations.SentimentAnnotatedTree.class);
+                Tree tree = sentence.get(SentimentCoreAnnotations.AnnotatedTree.class);
                 int sentiment = RNNCoreAnnotations.getPredictedClass(tree);
                 String partText = sentence.toString();
                 if (partText.length() > longest) {
