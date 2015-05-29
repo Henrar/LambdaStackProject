@@ -1,27 +1,45 @@
 package com.lambda.stack;
 
-import edu.stanford.nlp.ling.*;
-import edu.stanford.nlp.pipeline.*;
+import edu.stanford.nlp.ling.CoreAnnotations;
+import edu.stanford.nlp.neural.rnn.RNNCoreAnnotations;
+import edu.stanford.nlp.pipeline.Annotation;
+import edu.stanford.nlp.pipeline.StanfordCoreNLP;
 import edu.stanford.nlp.sentiment.SentimentCoreAnnotations;
-import edu.stanford.nlp.util.*;
-
-import java.util.List;
-import java.util.Properties;
+import edu.stanford.nlp.trees.Tree;
+import edu.stanford.nlp.util.CoreMap;
+import org.apache.spark.streaming.api.java.JavaDStream;
 
 /**
  * Created by Henrar on 2015-05-29.
  */
+
 public class WordProcessing {
-    public void processWords(String [] inputWords) {
-        String text = "I am feeling very upset";
-        Properties props = new Properties();
-        props.setProperty("annotators", "tokenize, ssplit, pos, lemma, parse, sentiment");
-        StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
-        Annotation annotation = pipeline.process(text);
-        List<CoreMap> sentences = annotation.get(CoreAnnotations.SentencesAnnotation.class);
-        for (CoreMap sentence : sentences) {
-            String sentiment = sentence.get(SentimentCoreAnnotations.ClassName.class);
-            System.out.println(sentiment + "\t" + sentence);
+    static StanfordCoreNLP pipeline;
+
+    public static void init() {
+        pipeline = new StanfordCoreNLP("MyPropFile.properties");
+    }
+
+    public static void findSentimentForSingleTweet(String tweet) {
+
+        int mainSentiment = 0;
+        if (tweet != null && tweet.length() > 0) {
+            int longest = 0;
+            Annotation annotation = pipeline.process(tweet);
+            for (CoreMap sentence : annotation.get(CoreAnnotations.SentencesAnnotation.class)) {
+                Tree tree = sentence.get(SentimentCoreAnnotations.SentimentAnnotatedTree.class);
+                int sentiment = RNNCoreAnnotations.getPredictedClass(tree);
+                String partText = sentence.toString();
+                if (partText.length() > longest) {
+                    mainSentiment = sentiment;
+                    longest = partText.length();
+                }
+            }
         }
+        System.out.println("DEBUG: " + mainSentiment);
+    }
+
+    public static void findSentimentForTweetStream(JavaDStream<String> statuses) {
+        int [] sentiments;
     }
 }

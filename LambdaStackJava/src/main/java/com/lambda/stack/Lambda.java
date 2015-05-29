@@ -26,6 +26,8 @@ public final class Lambda {
         databaseHelper = new DatabaseHelper();
         twitterHelper.configureTwitterCredentials();
         databaseHelper.connectToDatabase();
+        WordProcessing.init();
+
 
         Logger.getLogger("org").setLevel(Level.OFF);
         Logger.getLogger("akka").setLevel(Level.OFF);
