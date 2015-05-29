@@ -13,7 +13,7 @@ public class DatabaseHelper {
     static final private String USER = "spark";
     static final private String PASS = "spark";
 
-    public static void connectToDatabase()
+    public void connectToDatabase()
     {
         Connection conn = null;
         Statement stmt = null;
