@@ -18,7 +18,7 @@ public class DatabaseHelper {
         Connection conn = null;
         Statement stmt = null;
         try{
-            Class.forName("/home/ubuntu/mysql-connector-java-5.1.35.jar");
+            Class.forName("mysql-connector-java-5.1.35.jar");
 
             conn = DriverManager.getConnection(DB_URL, USER, PASS);
             stmt = conn.createStatement();

@@ -13,13 +13,17 @@ import org.apache.log4j.Level;
  * @version 0.2
  */
 public final class Lambda {
+
+    private static TwitterHelper twitterHelper;
+    private static DatabaseHelper databaseHelper;
+
     public static void main(String[] args) throws Exception {
         String sparkHome = "../../opt/spark";
         String sparkUrl = "local[4]";
         String jarFile = "/home/ubuntu/jst.jar";
 
-        TwitterHelper twitterHelper = new TwitterHelper();
-        DatabaseHelper databaseHelper = new DatabaseHelper();
+        twitterHelper = new TwitterHelper();
+        databaseHelper = new DatabaseHelper();
         twitterHelper.configureTwitterCredentials();
         databaseHelper.connectToDatabase();
 
