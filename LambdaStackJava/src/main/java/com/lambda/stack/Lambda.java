@@ -36,12 +36,13 @@ public final class Lambda {
 
 
         JavaDStream<Status> tweets = TwitterUtils.createStream(ssc);
+        WordProcessing.findSentimentForSingleTweet(tweets.toString());
         JavaDStream<String> statuses = tweets.map(new Function<Status, String>() {
             public String call(Status status) { return status.getText(); }
         }
         );
 
-        statuses.print();
+        //statuses.print();
         ssc.start();
         ssc.awaitTermination();
     }
