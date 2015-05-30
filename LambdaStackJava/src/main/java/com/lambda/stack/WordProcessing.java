@@ -17,7 +17,7 @@ public class WordProcessing {
     static StanfordCoreNLP pipeline;
 
     public static void init() {
-        pipeline = new StanfordCoreNLP("MyPropFile.properties");
+        pipeline = new StanfordCoreNLP("tokenize, ssplit, pos, lemma, ner, parse, sdclassifier");
     }
 
     public static void findSentimentForSingleTweet(String tweet) {
