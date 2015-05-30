@@ -20,18 +20,9 @@ public class WordProcessing {
 
     public static void init() {
         Properties props = new Properties();
-
-        try {
-            props.put(
-                    "pos.model",
-                    "edu/stanford/nlp/models/pos-tagger/wsj-bidirectional/wsj-0-18-bidirectional-distsim.tagger");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
         props.put(
                 "annotators",
-                "tokenize, ssplit, pos, lemma, ner, parse, sdclassifier");
+                "tokenize, ssplit, pos, lemma, ner, parse");
 
         pipeline = new StanfordCoreNLP(props);
     }
