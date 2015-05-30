@@ -9,6 +9,8 @@ import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.util.CoreMap;
 import org.apache.spark.streaming.api.java.JavaDStream;
 
+import java.util.Properties;
+
 /**
  * Created by Henrar on 2015-05-29.
  */
@@ -17,7 +19,21 @@ public class WordProcessing {
     static StanfordCoreNLP pipeline;
 
     public static void init() {
-        pipeline = new StanfordCoreNLP("tokenize, ssplit, pos, lemma, ner, parse, sdclassifier");
+        Properties props = new Properties();
+
+        try {
+            props.put(
+                    "pos.model",
+                    "edu/stanford/nlp/models/pos-tagger/wsj-bidirectional/wsj-0-18-bidirectional-distsim.tagger");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        props.put(
+                "annotators",
+                "tokenize, ssplit, pos, lemma, ner, parse, sdclassifier");
+
+        pipeline = new StanfordCoreNLP(props);
     }
 
     public static void findSentimentForSingleTweet(String tweet) {
