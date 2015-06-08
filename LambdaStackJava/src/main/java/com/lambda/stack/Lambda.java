@@ -1,13 +1,15 @@
 package com.lambda.stack;
 
 import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.apache.spark.api.java.function.Function;
-import org.apache.spark.streaming.Duration;
-import org.apache.spark.streaming.api.java.JavaDStream;
-import org.apache.spark.streaming.api.java.JavaStreamingContext;
-import org.apache.spark.streaming.twitter.TwitterUtils;
-import twitter4j.Status;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import scala.Tuple2;
 
 /**
  * @author Henrar
@@ -35,15 +37,37 @@ public final class Lambda {
 
         JavaStreamingContext ssc = new JavaStreamingContext(sparkUrl, "Twitter", new Duration(1000), sparkHome, new String[]{jarFile});
 
-
-        JavaDStream<Status> tweets = TwitterUtils.createStream(ssc);
-        WordProcessing.findSentimentForSingleTweet(tweets.toString());
-        JavaDStream<String> statuses = tweets.map(new Function<Status, String>() {
-            public String call(Status status) { return status.getText(); }
+        JavaDStream<Status> tweets = TwitterUtils.createStream(ssc).filter(new Function<Status, Boolean>() {
+            @Override
+            public Boolean call(Status t1) throws Exception {
+                return "en".equals(t1.getUser().getLang());
+            }
         }
         );
+       
+        JavaPairDStream<String,Integer> tags = tweets.flatMapToPair(new PairFlatMapFunction<Status, String, Integer>() {
+            @Override
+            public Iterable<Tuple2<String, Integer>> call(Status t) throws Exception {
+               List<Tuple2<String,Integer>> l = new ArrayList<>(t.getHashtagEntities().length);
+               
+               for( HashtagEntity he : t.getHashtagEntities()) {
+                   l.add(new Tuple2<>(he.getText(),Integer.valueOf(1)));
+               }
+               
+               return l;
+            }
+        }
+        );
+        JavaPairDStream<String,Integer> tagsc = tags.reduceByKey(new Function2<Integer, Integer, Integer>() {
 
-        //statuses.print();
+            @Override
+            public Integer call(Integer t1, Integer t2) throws Exception {
+                return t1 + t2;
+            }
+        });
+      
+       tagsc.print();
+       
         ssc.start();
         ssc.awaitTermination();
     }
