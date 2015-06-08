@@ -13,12 +13,12 @@ public class DatabaseHelper {
     static final private String USER = "spark";
     static final private String PASS = "spark";
 
-    public static void connectToDatabase()
+    public void connectToDatabase()
     {
         Connection conn = null;
         Statement stmt = null;
         try{
-            Class.forName("com.mysql.jdbc.Driver");
+            Class.forName("mysql-connector-java-5.1.35.jar");
 
             conn = DriverManager.getConnection(DB_URL, USER, PASS);
             stmt = conn.createStatement();
