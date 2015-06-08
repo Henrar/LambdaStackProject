@@ -8,7 +8,7 @@ import java.sql.*;
 public class DatabaseHelper {
 
     static final private String JDBC_DRIVER = "com.mysql.jdbc.Driver";
-    static final private String DB_URL = "jdbc:mysql:172.17.84.79";
+    static final private String DB_URL = "jdbc:mysql:172.17.84.79/tweetdb";
 
     static final private String USER = "spark";
     static final private String PASS = "spark";
@@ -18,20 +18,18 @@ public class DatabaseHelper {
         Connection conn = null;
         Statement stmt = null;
         try{
-            Class.forName("mysql-connector-java-5.1.35.jar");
-
+            
+            
+            DriverManager.registerDriver((Driver)Class.forName(JDBC_DRIVER).newInstance());
+            
             conn = DriverManager.getConnection(DB_URL, USER, PASS);
             stmt = conn.createStatement();
             String sql;
-            sql = "SELECT FLD_ID, FLD_MESSAGE, FLD_COUNT FROM TWEET_COUNT";
+            sql = "SELECT * FROM TBL_HASHTAG";
             ResultSet rs = stmt.executeQuery(sql);
 
             while(rs.next()){
-                int id = rs.getInt("FLD_ID");
-                String msg = rs.getString("FLD_MESSAGE");
-                int count = rs.getInt("FLD_COUNT");
-
-                System.out.println(id + " " + msg + " " + count);
+                System.out.println(rs.getString(1));
             }
             rs.close();
             stmt.close();

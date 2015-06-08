@@ -29,7 +29,15 @@
                     </execution>
                 </executions>
                 <configuration>
-			        <filters>
+                    <artifactSet>
+                        <includes>
+                            <include>org.twitter4j:*</include>
+                            <include>org.apache.spark:*</include>
+                            <include>edu.stanford.nlp:*</include>
+                            <include>mysql:*</include>
+                        </includes>
+                    </artifactSet>
+                    <!--<filters>
                         <filter>
                                 <artifact>*:*</artifact>
                                 <excludes>
@@ -38,7 +46,7 @@
                                     <exclude>META-INF/*.RSA</exclude>
                                 </excludes>
                          </filter>
-    			    </filters>
+                    </filters>-->
                     <finalName>${project.artifactId}</finalName>
                 </configuration>
             </plugin>
@@ -68,7 +76,12 @@
             <artifactId>spark-streaming-twitter_2.11</artifactId>
             <version>1.3.1</version>
         </dependency>
-
+        <dependency>
+                    <groupId>mysql</groupId>
+                    <artifactId>mysql-connector-java</artifactId>
+                    <version>5.1.35</version>
+                </dependency> 
+        <!--
         <dependency>
             <groupId>edu.stanford.nlp</groupId>
             <artifactId>stanford-corenlp</artifactId>
@@ -80,7 +93,7 @@
             <artifactId>stanford-corenlp</artifactId>
             <version>3.3.0</version>
             <classifier>models</classifier>
-        </dependency>
+        </dependency>-->
 
     </dependencies>
 
