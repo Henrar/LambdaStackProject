@@ -8,7 +8,7 @@ import java.sql.*;
 public class DatabaseHelper {
 
     static final private String JDBC_DRIVER = "com.mysql.jdbc.Driver";
-    static final private String DB_URL = "jdbc:mysql:172.17.84.79/tweetdb";
+    static final private String DB_URL = "jdbc:mysql://172.17.84.79/tweetdb";
 
     static final private String USER = "spark";
     static final private String PASS = "spark";

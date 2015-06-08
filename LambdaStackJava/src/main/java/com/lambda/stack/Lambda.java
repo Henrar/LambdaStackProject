@@ -31,6 +31,22 @@ public final class Lambda {
         String sparkUrl = "local[4]";
         String jarFile = "/home/ubuntu/jst.jar";
 
+        long batch = 1;
+        long window = 10;
+        long slide=1;
+        
+        if( args.length > 0 ) {
+            batch = Long.parseLong(args[0]);
+        }
+        
+        if( args.length > 1 ) {
+            window = Long.parseLong(args[1]);
+        }
+        
+        if( args.length > 2 ) {
+            slide = Long.parseLong(args[2]);
+        }
+        
         twitterHelper = new TwitterHelper();
         databaseHelper = new DatabaseHelper();
         twitterHelper.configureTwitterCredentials();
@@ -39,7 +55,7 @@ public final class Lambda {
         Logger.getLogger("org").setLevel(Level.OFF);
         Logger.getLogger("akka").setLevel(Level.OFF);
 
-        JavaStreamingContext ssc = new JavaStreamingContext(sparkUrl, "Twitter", new Duration(1000), sparkHome, new String[]{jarFile});
+        JavaStreamingContext ssc = new JavaStreamingContext(sparkUrl, "Twitter", new Duration(batch*1000), sparkHome, new String[]{jarFile});
 
         JavaDStream<Status> tweets = TwitterUtils.createStream(ssc).filter(new Function<Status, Boolean>() {
             @Override
@@ -49,7 +65,12 @@ public final class Lambda {
         }
         );
         
-        JavaPairDStream<String,Integer> tags = tweets.flatMapToPair(new PairFlatMapFunction<Status, String, Integer>() {
+        
+        
+        JavaPairDStream<String,Integer> tags = tweets.window(new Duration(window*1000), 
+                                                             new Duration(slide*1000) )
+                                                     .flatMapToPair(new PairFlatMapFunction<Status, String, Integer>() 
+        {
             @Override
             public Iterable<Tuple2<String, Integer>> call(Status t) throws Exception {
                List<Tuple2<String,Integer>> l = new ArrayList<>(t.getHashtagEntities().length);
@@ -62,6 +83,7 @@ public final class Lambda {
             }
         }
         );
+        
         JavaPairDStream<String,Integer> tagsc = tags.reduceByKey(new Function2<Integer, Integer, Integer>() {
 
             @Override
@@ -70,7 +92,6 @@ public final class Lambda {
             }
         });
       
-       tagsc.print();
        
         ssc.start();
         ssc.awaitTermination();
