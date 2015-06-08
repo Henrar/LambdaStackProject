@@ -5,6 +5,7 @@ import org.apache.log4j.Level;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.log4j.Logger;
+import org.apache.spark.api.java.function.FlatMapFunction;
 import org.apache.spark.api.java.function.Function;
 import org.apache.spark.api.java.function.Function2;
 import org.apache.spark.api.java.function.PairFlatMapFunction;
@@ -65,8 +66,16 @@ public final class Lambda {
         }
         );
         
-        
-        
+//        tweets.flatMap(new FlatMapFunction<Status, Status>() {
+//            @Override
+//            public Iterable<Status> call(Status t) throws Exception {
+//                
+//            }
+//        });
+         
+        // Tutaj się dane agregują buduje się zbiór np z ostniej minuty - i potem 
+        // przesuwamy się nad nim co sekunde i przetwarzamy te same dane są przetwarzane
+        // po kilka razy, ale za to jest ich wiecej
         JavaPairDStream<String,Integer> tags = tweets.window(new Duration(window*1000), 
                                                              new Duration(slide*1000) )
                                                      .flatMapToPair(new PairFlatMapFunction<Status, String, Integer>() 
@@ -75,10 +84,34 @@ public final class Lambda {
             public Iterable<Tuple2<String, Integer>> call(Status t) throws Exception {
                List<Tuple2<String,Integer>> l = new ArrayList<>(t.getHashtagEntities().length);
                
-               for( HashtagEntity he : t.getHashtagEntities()) {
-                   l.add(new Tuple2<>(he.getText(),Integer.valueOf(1)));
-               }
+//               boolean count=false;
+//               for( HashtagEntity he : t.getHashtagEntities()) {
+//                   if(he.getText().equals("iphone")){
+//                       count=true;
+//                       break;
+//                   }
+////                   l.add(new Tuple2<>(he.getText(),Integer.valueOf(1)));
+//               }
                
+               
+//               if(count){
+               String s = t.getText();
+               if(s.contains("like")) {
+                   l.add(new Tuple2<>("like",Integer.valueOf(1)));
+               }
+               if(s.contains("love")) {
+                   l.add(new Tuple2<>("love",Integer.valueOf(1)));
+               }
+               if(s.contains("hate")) {
+                   l.add(new Tuple2<>("hate",Integer.valueOf(1)));
+               }
+               if(s.contains("take")) {
+                   l.add(new Tuple2<>("take",Integer.valueOf(1)));
+               }
+                if(s.contains("admire")) {
+                   l.add(new Tuple2<>("admire",Integer.valueOf(1)));
+               }
+//               }
                return l;
             }
         }
@@ -92,6 +125,7 @@ public final class Lambda {
             }
         });
       
+        tagsc.print(30);
        
         ssc.start();
         ssc.awaitTermination();
