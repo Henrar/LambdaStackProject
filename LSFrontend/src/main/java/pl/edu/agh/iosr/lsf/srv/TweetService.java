@@ -2,6 +2,7 @@ package pl.edu.agh.iosr.lsf.srv;
 
 
 import java.util.List;
+import pl.edu.agh.iosr.lsf.model.Keyword;
 import pl.edu.agh.iosr.lsf.model.Tweet;
 
 /*
@@ -20,4 +21,8 @@ public interface TweetService {
     List<Tweet> listTweets();
     Tweet getTweet(int id);
     void removeTweet(int id);
+    
+    void addKeyword(Keyword k);
+    void addKeyword(String name,String category);
+    List<Keyword> listKeywords();
 }

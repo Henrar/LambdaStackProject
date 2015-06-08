@@ -31,17 +31,17 @@ import pl.edu.agh.iosr.lsf.srv.TweetService;
  *
  * @author uriel
  */
-@RestController
-@RequestMapping("/tweets")
+//@RestController
+//@RequestMapping("/tweets")
 public class TweetController {
     
     private TweetService tweet;
     
-    @Autowired
-    @Qualifier(value="personService")
-    public void setTweetService(TweetService dao) {
-        tweet = dao;
-    }
+//    @Autowired
+//    @Qualifier(value="personService")
+//    public void setTweetService(TweetService dao) {
+//        tweet = dao;
+//    }
     
     @RequestMapping(method = RequestMethod.GET)
     public List<Tweet> getTweets() {

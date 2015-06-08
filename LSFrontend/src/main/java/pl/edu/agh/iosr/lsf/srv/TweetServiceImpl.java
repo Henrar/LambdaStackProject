@@ -10,7 +10,9 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pl.edu.agh.iosr.lsf.dao.KeywordDAO;
 import pl.edu.agh.iosr.lsf.dao.TweetDAO;
+import pl.edu.agh.iosr.lsf.model.Keyword;
 import pl.edu.agh.iosr.lsf.model.Tweet;
 
 /**
@@ -20,7 +22,15 @@ import pl.edu.agh.iosr.lsf.model.Tweet;
 @Service
 public class TweetServiceImpl implements TweetService {
 
+    // DB 79
+    
     private TweetDAO dao;
+    private KeywordDAO kdao;
+    
+    @Qualifier(value="keywordDAO")
+    public void setKeywordDAO(KeywordDAO d){
+        kdao = d;
+    }
     
     @Qualifier(value="personDAO")
     public void setTweetDAO(TweetDAO dao) {
@@ -57,5 +67,27 @@ public class TweetServiceImpl implements TweetService {
     public void removeTweet(int id) {
         dao.removeTweet(id);
     }
+
+    @Override
+    @Transactional
+    public void addKeyword(Keyword k) {
+        kdao.addKeyword(k);
+    }
+
+    @Override
+     @Transactional
+    public void addKeyword(String name, String category) {
+        kdao.addKeyword(name, category);
+    }
+    
+    
+
+    @Override
+    @Transactional
+    public List<Keyword> listKeywords() {
+        return kdao.listKeywords();
+    }
+    
+    
     
 }
