@@ -99,17 +99,17 @@ public final class Lambda {
                         l.add(new Tuple2<>(s,Integer.valueOf(1)));
                        }
                    }
-//                for( HashtagEntity he : t.getHashtagEntities()) {
-//                    String text = he.getText(); 
-//                    if(!text.matches("[a-zA-Z0-9]*")) continue;
-//                    
-//                    int id = dh.findHashTag(text);
-//                    if(id<0) {
-//                       id = dh.insertHashTag(text);
-//                    }
-//                    
-//                    l.add(new Tuple2<>(text.toUpperCase(),Integer.valueOf(1)));
-//                }
+                for( HashtagEntity he : t.getHashtagEntities()) {
+                    String text = he.getText(); 
+                    if(!text.matches("[a-zA-Z0-9]*")) continue;
+                    
+                    int id = dh.findHashTag(text);
+                    if(id<0) {
+                       id = dh.insertHashTag(text);
+                    }
+                    
+                    l.add(new Tuple2<>(text.toUpperCase(),Integer.valueOf(1)));
+                }
                 dh.close();
                }catch(SQLException e ) {
                    e.printStackTrace();
