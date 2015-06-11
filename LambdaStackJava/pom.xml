@@ -76,24 +76,12 @@
             <artifactId>spark-streaming-twitter_2.11</artifactId>
             <version>1.3.1</version>
         </dependency>
-        <dependency>
-                    <groupId>mysql</groupId>
-                    <artifactId>mysql-connector-java</artifactId>
-                    <version>5.1.35</version>
-                </dependency> 
-        <!--
-        <dependency>
-            <groupId>edu.stanford.nlp</groupId>
-            <artifactId>stanford-corenlp</artifactId>
-            <version>3.3.0</version>
-        </dependency>
 
         <dependency>
-            <groupId>edu.stanford.nlp</groupId>
-            <artifactId>stanford-corenlp</artifactId>
-            <version>3.3.0</version>
-            <classifier>models</classifier>
-        </dependency>-->
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>5.1.35</version>
+        </dependency>
 
     </dependencies>
 
