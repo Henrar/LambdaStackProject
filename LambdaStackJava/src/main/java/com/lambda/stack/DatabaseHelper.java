@@ -17,8 +17,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import static org.apache.spark.api.java.JavaRDDLike$class.id;
-import static org.apache.spark.api.java.JavaRDDLike$class.name;
 
 /**
  * Created by Henrar on 2015-05-14.
@@ -156,14 +154,14 @@ public class DatabaseHelper {
         
     }
     
-    public List<String> listMonitoredTags() throws SQLException {
-        List<String> l = new ArrayList<>();
+    public List<Object[]> listMonitoredTags() throws SQLException {
+        List<Object[]> l = new ArrayList<>();
         PreparedStatement ps = createStatement("MONITORED_HASHTAG");
       
         try(ResultSet rs = ps.executeQuery())
         {
             while(rs.next()){
-               l.add(rs.getString(1));
+               l.add(new Object[]{rs.getString(1),rs.getInt(2)});
             }
         }
         
@@ -186,12 +184,12 @@ public class DatabaseHelper {
         
     }
     
-    public int insertUser(String id,String name) throws SQLException {
+    public int insertUser(String name) throws SQLException {
         PreparedStatement ps = 
                 c.prepareStatement(statementStore.get("I_USER"),
                                    PreparedStatement.RETURN_GENERATED_KEYS);
-        ps.setString(1, id);
-        ps.setString(2, name);
+        ps.setString(1, name);
+        
         ps.execute();
                 
         try(ResultSet rs = ps.getGeneratedKeys()) {
@@ -204,6 +202,7 @@ public class DatabaseHelper {
         
         return -1;
     }
+    
     public int insertUserActivity(int user_is,Date date,long count) throws SQLException {
         PreparedStatement ps = 
                 c.prepareStatement(statementStore.get("I_USER_ACTIVITY"),
@@ -211,6 +210,48 @@ public class DatabaseHelper {
         ps.setTimestamp(1, new Timestamp(date.getTime()));
         ps.setLong(2,count);
         ps.setInt(3, user_is);
+        ps.execute();
+                
+        try(ResultSet rs = ps.getGeneratedKeys()) {
+            while(rs.next()){
+                return rs.getInt(1);
+            }
+        } finally {
+            ps.close();
+        }       
+        
+        return -1;
+    }
+    
+    public int insertUserCategoryUsage(Date date,int catID,int userID) throws SQLException {
+        PreparedStatement ps = 
+                c.prepareStatement(statementStore.get("I_USER_CATEGORY_USAGE"),
+                                   PreparedStatement.RETURN_GENERATED_KEYS);
+        ps.setDate(1,new java.sql.Date(date.getTime()));
+        ps.setInt(2,catID);
+        ps.setInt(3, userID);
+        ps.execute();
+                
+        try(ResultSet rs = ps.getGeneratedKeys()) {
+            while(rs.next()){
+                return rs.getInt(1);
+            }
+        } finally {
+            ps.close();
+        }       
+        
+        return -1;
+    }
+    
+    public int insertUserKeywordUsage(int catID,int key, long usage) throws SQLException
+    {
+        PreparedStatement ps = 
+                c.prepareStatement(statementStore.get("I_USER_KEYWORD_USAGE"),
+                                   PreparedStatement.RETURN_GENERATED_KEYS);
+       
+        ps.setInt(1,catID);
+        ps.setInt(2, key);
+        ps.setLong(3, usage);
         ps.execute();
                 
         try(ResultSet rs = ps.getGeneratedKeys()) {
@@ -263,6 +304,47 @@ public class DatabaseHelper {
         return -1;
     }
     
+    public int insertTagCategoryUsage(Date date,int catID,int tagID) throws SQLException {
+        PreparedStatement ps = 
+                c.prepareStatement(statementStore.get("I_TAG_CATEGORY_USAGE"),
+                                   PreparedStatement.RETURN_GENERATED_KEYS);
+        ps.setDate(1,new java.sql.Date(date.getTime()));
+        ps.setInt(2,catID);
+        ps.setInt(3, tagID);
+        ps.execute();
+                
+        try(ResultSet rs = ps.getGeneratedKeys()) {
+            while(rs.next()){
+                return rs.getInt(1);
+            }
+        } finally {
+            ps.close();
+        }       
+        
+        return -1;
+    }
+    
+    public int insertTagKeywordUsage(int catID,int key,long usage) throws SQLException {
+         PreparedStatement ps = 
+                c.prepareStatement(statementStore.get("I_TAG_KEYWORD_USAGE"),
+                                   PreparedStatement.RETURN_GENERATED_KEYS);
+       
+        ps.setInt(1,catID);
+        ps.setInt(2, key);
+        ps.setLong(3, usage);
+        ps.execute();
+                
+        try(ResultSet rs = ps.getGeneratedKeys()) {
+            while(rs.next()){
+                return rs.getInt(1);
+            }
+        } finally {
+            ps.close();
+        }       
+        
+        return -1;
+    }
+    
     public int insertKeywordUsage(int key,long usage) throws SQLException {
         PreparedStatement ps = 
                 c.prepareStatement(statementStore.get("I_KEYWORD_USAGE"),
@@ -289,7 +371,7 @@ public class DatabaseHelper {
         try(ResultSet rs = ps.executeQuery())
         {
             while(rs.next()){
-                l.add(new Object[]{rs.getString(1),rs.getInt(2)});
+                l.add(new Object[]{rs.getString(1),rs.getInt(2),rs.getInt(3)});
             }
            
         }

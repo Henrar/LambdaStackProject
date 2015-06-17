@@ -11,15 +11,16 @@ import java.util.Iterator;
 import java.util.List;
 import org.apache.spark.api.java.function.FlatMapFunction;
 import scala.Tuple2;
+import scala.Tuple3;
 import twitter4j.Status;
 
 /**
  *
  * @author Dariusz Hudziak
  */
-public class KeywordMapper implements FlatMapFunction<Status, Tuple2<Status,String>> {
+public class KeywordMapper implements FlatMapFunction<Status, Tuple3<Status,Integer,Integer>> {
     @Override
-    public Iterable<Tuple2<Status, String>> call(Status t) throws Exception {
+    public Iterable<Tuple3<Status, Integer ,Integer>> call(Status t) throws Exception {
        List<Object[]> keywords = null;
        DatabaseHelper dh = null;
        
@@ -40,10 +41,10 @@ public class KeywordMapper implements FlatMapFunction<Status, Tuple2<Status,Stri
            }
        }
        
-       List<Tuple2<Status, String>> list = new ArrayList<>();
+       List<Tuple3<Status, Integer,Integer>> list = new ArrayList<>();
        
        for(Object[] o : keywords) {
-           list.add(new Tuple2<>(t,(String)o[0]));
+           list.add(new Tuple3<>(t,(Integer)o[1],(Integer)o[2]));
        }
        
        return list;

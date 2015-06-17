@@ -5,29 +5,19 @@
  */
 package com.lambda.stack;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.Collections;
 import org.apache.spark.api.java.function.PairFlatMapFunction;
 import scala.Tuple2;
-import twitter4j.HashtagEntity;
 import twitter4j.Status;
 
 /**
  *
  * @author uriel
  */
-public class HashTagMapper implements PairFlatMapFunction<Status, String, Integer> {
-
+public class UserMapper implements PairFlatMapFunction<Status, String, Integer> {
     @Override
     public Iterable<Tuple2<String, Integer>> call(Status t) throws Exception {
-        List<Tuple2<String,Integer>> result = new LinkedList<>();
-        
-        for(HashtagEntity he : t.getHashtagEntities()) {
-            result.add(new Tuple2<>(he.getText(),Integer.valueOf(1)));
-                   
-        }
-        
-        return result;
+        return Collections.singletonList(new Tuple2<>(t.getUser().getName(),Integer.valueOf(1)));
     }
     
 }
