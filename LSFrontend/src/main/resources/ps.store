@@ -1,0 +1,40 @@
+FIND_CATEGORY: select FLD__ID from TBL_KEYWORD_CATEGORY where FLD_NAME = ?;
+I_CATEGORY: insert into TBL_KEYWORD_CATEGORY(FLD_NAME) values(?);
+I_KEYWORD: insert into TBL_KEYWORD(FLD_NAME,FKF_CATEGORY) values(?,?);
+D_KEYWORD: delete from TBL_KEYWORD where FLD_NAME = ?;
+LIST_KEYWORDS: select c.FLD_NAME,k.FLD_NAME from TBL_KEYWORD as k 
+                                            join TBL_KEYWORD_CATEGORY as c 
+                                            on k.FKF_CATEGORY = c.FLD__ID
+                                            order by k.FLD_NAME;
+FIND_KEYWORD_TU: select k.FLD_NAME from TBL_HASHTAG_KEYWORD_USAGE as u
+                            join TBL_KEYWORD as k on u.FKF_KEYWORD = k.FLD__ID
+                            where k.FLD_NAME = ?
+                            group by k.FLD_NAME;
+LIST_TAGS: select FLD_NAME from TBL_HASHTAG where FLD_MONITORED=? order by FLD_NAME;
+U_TAGS: update TBL_HASHTAG set FLD_MONITORED=1 where FLD_NAME = ?;      
+LIST_TAG_ACTIVITY: select t.FLD_NAME,SUM(a.FLD_COUNT) from TBL_HASHTAG_ACTIVITY as a 
+                              join TBL_HASHTAG as t on a.FKF_TAG = t.FLD__ID
+                              where a.FLD_DATE between ? and ? 
+                              group by t.FLD_NAME;
+LIST_USERS: select FLD_NAME from TBL_TWITTER_USER where FLD_MONITORED=? order by FLD_NAME;
+U_USERS: update TBL_TWITTER_USER set FLD_MONITORED=1 where FLD_NAME = ?;
+LIST_USER_ACTIVITY: select u.FLD_NAME,SUM(a.FLD_COUNT) from TBL_USER_ACIVITY as a 
+                              join TBL_TWITTER_USER u on a.FKF_USER = u.FLD__ID
+                              where a.FLD_DATE between ? and ? group by u.FLD_NAME;
+T_KEYWORD_TAG: select k.FLD_NAME,c.FLD_DATE from TBL_HASHTAG_KEYWORD_USAGE as u 
+                             join TBL_KEYWORD as k 
+                             on u.FKF_KEYWORD = k.FLD__ID
+                             join TBL_HASHTAG_CATEGORY_USAGE as c 
+                             on u.FKF_CATEGORY = c.FLD__ID;
+T_KEYWORD_USER: select k.FLD_NAME,c.FLD_DATE from TBL_USER_KEYWORD_USAGE as u 
+                             join TBL_KEYWORD as k 
+                             on u.FKF_KEYWORD = k.FLD__ID
+                             join TBL_USER_CATEGORY_USAGE as c 
+                             on u.FKF_CATEGORY = c.FLD__ID;
+T_USER_ACTIVITY: select u.FLD_NAME,SUM(a.FLD_COUNT) from TBL_USER_ACIVITY as a 
+                              join TBL_TWITTER_USER u on a.FKF_USER = u.FLD__ID
+                              group by u.FLD_NAME order by FLD_NAME;
+T_TAG_ACTIVITY: select t.FLD_NAME,SUM(a.FLD_COUNT) from TBL_HASHTAG_ACTIVITY as a 
+                              join TBL_HASHTAG as t on a.FKF_TAG = t.FLD__ID
+                              where a.FLD_COUNT > 1
+                              group by t.FLD_NAME having AVG(a.FLD_COUNT) = 5;

@@ -35,38 +35,4 @@
         <property name="username" value="spark" />
         <property name="password" value="spark" />
     </bean>
- 
-    <!-- Hibernate 4 SessionFactory Bean definition -->
-    <bean id="hibernate4AnnotatedSessionFactory"
-        class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
-        <property name="dataSource" ref="dataSource" />
-        <property name="annotatedClasses">
-            <list>
-                <value>pl.edu.agh.iosr.lsf.model.Tweet</value>
-                <value>pl.edu.agh.iosr.lsf.model.Keyword</value>
-                <value>pl.edu.agh.iosr.lsf.model.KeywordCategory</value>
-            </list>
-        </property>
-        <property name="hibernateProperties">
-            <props>
-                <prop key="hibernate.dialect">org.hibernate.dialect.MySQLDialect
-                </prop>
-                <prop key="hibernate.hbm2ddl.auto">update</prop>
-            </props>
-        </property>
-    </bean>
-    
-    <bean id="personDAO" class="pl.edu.agh.iosr.lsf.dao.TweetDAOImpl">
-        <property name="sessionFactory" ref="hibernate4AnnotatedSessionFactory" />
-    </bean>
-    <bean id="keywordDAO" class="pl.edu.agh.iosr.lsf.dao.KeywordDAOImpl">
-        <property name="sessionFactory" ref="hibernate4AnnotatedSessionFactory" />
-    </bean>
-    <bean id="personService" class="pl.edu.agh.iosr.lsf.srv.TweetServiceImpl">
-        <property name="tweetDAO" ref="personDAO"></property>
-        <property name="keywordDAO" ref="keywordDAO"></property>
-    </bean>
-    <bean id="transactionManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager">
-        <property name="sessionFactory" ref="hibernate4AnnotatedSessionFactory" />
-    </bean>
 </beans>
