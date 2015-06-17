@@ -6,36 +6,33 @@
 package com.lambda.stack;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
-import org.apache.spark.api.java.function.PairFlatMapFunction;
+import org.apache.spark.api.java.function.FlatMapFunction;
 import scala.Tuple2;
-import scala.Tuple3;
-import twitter4j.HashtagEntity;
 import twitter4j.Status;
 
 /**
  *
  * @author Dariusz Hudziak
  */
-public class HashTagMapper implements PairFlatMapFunction<Status, Tuple3<String,String,String>, Integer> {
-
+public class KeywordMapper implements FlatMapFunction<Status, Tuple2<Status,String>> {
     @Override
-    public Iterable<Tuple2<Tuple3<String, String, String>, Integer>> call(Status t) throws Exception {
-       List<Object[]> keyword=null;
-       DatabaseHelper dh=null;
+    public Iterable<Tuple2<Status, String>> call(Status t) throws Exception {
+       List<Object[]> keywords = null;
+       DatabaseHelper dh = null;
        
        try {
            dh = DatabaseHelper.openDB();
-           keyword = dh.listKeywords();
+           keywords = dh.listKeywords();
        } catch(SQLException e) {
            e.printStackTrace();
        } finally {
            if(dh!=null) dh.close();
        }
        
-       Iterator<Object[]> keyIter = keyword.iterator();
+       Iterator<Object[]> keyIter = keywords.iterator();
        while(keyIter.hasNext()) {
            Object[] o = keyIter.next();
            if(!t.getText().contains((String)o[0])){
@@ -43,15 +40,12 @@ public class HashTagMapper implements PairFlatMapFunction<Status, Tuple3<String,
            }
        }
        
-       List<Tuple2<Tuple3<String,String,String>,Integer>> list = new LinkedList<>();
+       List<Tuple2<Status, String>> list = new ArrayList<>();
        
-       for(HashtagEntity ha : t.getHashtagEntities()) {
-           for(Object[] o : keyword) {
-             list.add(new Tuple2(new Tuple3(ha.getText(),o[1],o[0]),Integer.valueOf(1)));
-           }
+       for(Object[] o : keywords) {
+           list.add(new Tuple2<>(t,(String)o[0]));
        }
        
        return list;
-    }
-    
+    }   
 }

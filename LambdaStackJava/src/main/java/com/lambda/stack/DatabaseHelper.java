@@ -10,10 +10,15 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import static org.apache.spark.api.java.JavaRDDLike$class.id;
+import static org.apache.spark.api.java.JavaRDDLike$class.name;
 
 /**
  * Created by Henrar on 2015-05-14.
@@ -137,6 +142,89 @@ public class DatabaseHelper {
         
     }
     
+    public int findKeyword(String key) throws SQLException {
+        PreparedStatement ps = createStatement("FIND_KEYWORD");
+        ps.setString(1, key);
+        
+        try(ResultSet rs = ps.executeQuery())
+        {
+            while(rs.next()){
+                return rs.getInt(1);
+            }
+            return -1;
+        }
+        
+    }
+    
+    public List<String> listMonitoredTags() throws SQLException {
+        List<String> l = new ArrayList<>();
+        PreparedStatement ps = createStatement("MONITORED_HASHTAG");
+      
+        try(ResultSet rs = ps.executeQuery())
+        {
+            while(rs.next()){
+               l.add(rs.getString(1));
+            }
+        }
+        
+        ps.close();
+        
+        return l;
+    }
+    
+    public int findUser(String twid) throws SQLException {
+        PreparedStatement ps = createStatement("FIND_USER");
+        ps.setString(1, twid);
+        
+        try(ResultSet rs = ps.executeQuery())
+        {
+            while(rs.next()){
+                return rs.getInt(1);
+            }
+            return -1;
+        }
+        
+    }
+    
+    public int insertUser(String id,String name) throws SQLException {
+        PreparedStatement ps = 
+                c.prepareStatement(statementStore.get("I_USER"),
+                                   PreparedStatement.RETURN_GENERATED_KEYS);
+        ps.setString(1, id);
+        ps.setString(2, name);
+        ps.execute();
+                
+        try(ResultSet rs = ps.getGeneratedKeys()) {
+            while(rs.next()){
+                return rs.getInt(1);
+            }
+        } finally {
+            ps.close();
+        }       
+        
+        return -1;
+    }
+    public int insertUserActivity(int user_is,Date date,long count) throws SQLException {
+        PreparedStatement ps = 
+                c.prepareStatement(statementStore.get("I_USER_ACTIVITY"),
+                                   PreparedStatement.RETURN_GENERATED_KEYS);
+        ps.setTimestamp(1, new Timestamp(date.getTime()));
+        ps.setLong(2,count);
+        ps.setInt(3, user_is);
+        ps.execute();
+                
+        try(ResultSet rs = ps.getGeneratedKeys()) {
+            while(rs.next()){
+                return rs.getInt(1);
+            }
+        } finally {
+            ps.close();
+        }       
+        
+        return -1;
+    }
+    
+    
     public int insertHashTag(String tag) throws SQLException {
         PreparedStatement ps = 
                 c.prepareStatement(statementStore.get("I_HASHTAG"),
@@ -155,14 +243,53 @@ public class DatabaseHelper {
         return -1;
     }
     
-    public List<String> listKeywords() throws SQLException {
+    public int insertTagActivity(int tagid,Date date,long count) throws SQLException {
+        PreparedStatement ps = 
+                c.prepareStatement(statementStore.get("I_TAG_ACTIVITY"),
+                                   PreparedStatement.RETURN_GENERATED_KEYS);
+        ps.setTimestamp(1, new Timestamp(date.getTime()));
+        ps.setLong(2,count);
+        ps.setInt(3, tagid);
+        ps.execute();
+                
+        try(ResultSet rs = ps.getGeneratedKeys()) {
+            while(rs.next()){
+                return rs.getInt(1);
+            }
+        } finally {
+            ps.close();
+        }       
+        
+        return -1;
+    }
+    
+    public int insertKeywordUsage(int key,long usage) throws SQLException {
+        PreparedStatement ps = 
+                c.prepareStatement(statementStore.get("I_KEYWORD_USAGE"),
+                                   PreparedStatement.RETURN_GENERATED_KEYS);
+        ps.setInt(1, key);
+        ps.setLong(2, usage);
+        ps.execute();
+                
+        try(ResultSet rs = ps.getGeneratedKeys()) {
+            while(rs.next()){
+                return rs.getInt(1);
+            }
+        } finally {
+            ps.close();
+        }       
+        
+        return -1;
+    }
+    
+    public List<Object[]> listKeywords() throws SQLException {
         PreparedStatement ps = createStatement("LIST_KEYWORDS");
-        List<String> l = new LinkedList();
+        List<Object[]> l = new LinkedList();
         
         try(ResultSet rs = ps.executeQuery())
         {
             while(rs.next()){
-                l.add(rs.getString(1));
+                l.add(new Object[]{rs.getString(1),rs.getInt(2)});
             }
            
         }

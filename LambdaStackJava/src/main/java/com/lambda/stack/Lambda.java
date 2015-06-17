@@ -4,10 +4,14 @@ import java.sql.SQLException;
 import org.apache.log4j.Level;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import org.apache.log4j.Logger;
 import org.apache.spark.api.java.JavaPairRDD;
+import org.apache.spark.api.java.function.FlatMapFunction;
 import org.apache.spark.api.java.function.Function;
 import org.apache.spark.api.java.function.Function2;
 import org.apache.spark.api.java.function.PairFlatMapFunction;
@@ -17,6 +21,7 @@ import org.apache.spark.streaming.api.java.JavaPairDStream;
 import org.apache.spark.streaming.api.java.JavaStreamingContext;
 import org.apache.spark.streaming.twitter.TwitterUtils;
 import scala.Tuple2;
+import scala.Tuple3;
 import twitter4j.HashtagEntity;
 import twitter4j.Status;
 
@@ -93,10 +98,10 @@ public final class Lambda {
                try {
                    DatabaseHelper dh = DatabaseHelper.openDB();
                    String txt = t.getText();
-                   for(String s : dh.listKeywords()){
+                   for(Object[] s : dh.listKeywords()){
                        
-                       if(txt.contains(s)){
-                        l.add(new Tuple2<>(s,Integer.valueOf(1)));
+                       if(txt.contains(s[0].toString())){
+                        l.add(new Tuple2<>(s[0].toString(),Integer.valueOf(1)));
                        }
                    }
                 for( HashtagEntity he : t.getHashtagEntities()) {
@@ -108,7 +113,7 @@ public final class Lambda {
                        id = dh.insertHashTag(text);
                     }
                     
-                    l.add(new Tuple2<>(text.toUpperCase(),Integer.valueOf(1)));
+                   // l.add(new Tuple2<>(text.toUpperCase(),Integer.valueOf(1)));
                 }
                 dh.close();
                }catch(SQLException e ) {
@@ -116,67 +121,158 @@ public final class Lambda {
                }
                
                
-//               if(count){
-//               String s = t.getText();
-//               if(s.contains("like")) {
-//                   l.add(new Tuple2<>("like",Integer.valueOf(1)));
-//               }
-//               if(s.contains("love")) {
-//                   l.add(new Tuple2<>("love",Integer.valueOf(1)));
-//               }
-//               if(s.contains("hate")) {
-//                   l.add(new Tuple2<>("hate",Integer.valueOf(1)));
-//               }
-//               if(s.contains("take")) {
-//                   l.add(new Tuple2<>("take",Integer.valueOf(1)));
-//               }
-//                if(s.contains("admire")) {
-//                   l.add(new Tuple2<>("admire",Integer.valueOf(1)));
-//               }
-//               }
+//              
                return l;
             }
         }
         );
+    
         
-        JavaPairDStream<String,String> tagtext = tweets.flatMapToPair(new PairFlatMapFunction<Status, String, String>() {
-            @Override
-            public Iterable<Tuple2<String, String>> call(Status t) throws Exception {
-               List<Tuple2<String,String>> l = new ArrayList<>(t.getHashtagEntities().length);
-               
-               for( HashtagEntity he : t.getHashtagEntities()) {
-                   l.add(new Tuple2<>(he.getText(),t.getText()));
-               }
-               
-               return l;
-            }
-        }).reduceByKey(new Function2<String, String, String>() {
-            @Override
-            public String call(String t1, String t2) throws Exception {
-                return t1+" "+t2;
-            }
-        });
-        
-        
-        JavaPairDStream<String,Integer> tagsc = tags.reduceByKey(new Function2<Integer, Integer, Integer>() {
+//        tweets.flatMapToPair(new PairFlatMapFunction<Status, Integer, Integer>() {
+//            @Override
+//            public Iterable<Tuple2<Integer, Integer>> call(Status t) throws Exception {
+//               
+//                List<Tuple2<Integer,Integer>> result = new LinkedList<>();
+//                
+//                int tag_id = -1;
+//                try{
+//                    DatabaseHelper dh = DatabaseHelper.openDB();
+//                    
+//                    for(HashtagEntity he : t.getHashtagEntities()) {
+//                        if(he.getText().matches("[a-zA-Z0-9]*")){
+//                            tag_id = dh.findHashTag(he.getText());
+//                            if(tag_id <= 0)
+//                                tag_id = dh.insertHashTag(he.getText());
+//                        }
+//                        result.add(new Tuple2<>(tag_id,Integer.valueOf(1)));
+//                    }
+//                    
+//                    dh.close();
+//                }catch(SQLException e) {
+//                    e.printStackTrace();
+//                }
+//                
+//                return result;
+//            }
+//        }).reduceByKey(new Function2<Integer, Integer, Integer>() {
+//            @Override
+//            public Integer call(Integer t1, Integer t2) throws Exception {
+//                return t1+t2;
+//            }
+//        }).foreach(new Function<JavaPairRDD<Integer, Integer>, Void>() {
+//            @Override
+//            public Void call(JavaPairRDD<Integer, Integer> t1) throws Exception {
+//               Map<Integer,Integer> val = t1.collectAsMap();
+//               Date cd = new Date(System.currentTimeMillis());
+//               
+//               try{
+//                   DatabaseHelper dh = DatabaseHelper.openDB();
+//                   for(Integer tag : val.keySet()){
+//                       dh.insertTagActivity(tag, cd, val.get(tag));
+//                   }
+//                   dh.close();
+//                   
+//               }catch(SQLException e){
+//                    e.printStackTrace();
+//               }
+//               return null;
+//            }
+//        });
+//        
+//        tweets.flatMapToPair(new PairFlatMapFunction<Status, Integer, Integer>() {
+//            @Override
+//            public Iterable<Tuple2<Integer, Integer>> call(Status t) throws Exception {
+//                String name = t.getUser().getName();
+//                
+//                if(!name.matches("[a-zA-Z0-9]*")){
+//                    return Collections.emptyList();
+//                }
+//                
+//                String id = Long.toString(t.getUser().getId());
+//                int user_id = -1;
+//                try{
+//                    DatabaseHelper dh = DatabaseHelper.openDB();
+//                    
+//                    user_id = dh.findUser(id);
+//                    if(user_id <= 0) {
+//                        user_id = dh.insertUser(id, name);
+//                    }
+//                    
+//                    dh.close();
+//                }catch(SQLException e) {
+//                    e.printStackTrace();
+//                }
+//                
+//                return Collections.singleton(new Tuple2<Integer,Integer>(user_id,Integer.valueOf(1)));
+//            }
+//        }).reduceByKey(new Function2<Integer, Integer, Integer>() {
+//            @Override
+//            public Integer call(Integer t1, Integer t2) throws Exception {
+//                return t1+t2;
+//            }
+//        }).foreach(new Function<JavaPairRDD<Integer, Integer>, Void>() {
+//            @Override
+//            public Void call(JavaPairRDD<Integer, Integer> t1) throws Exception {
+//               Map<Integer,Integer> val = t1.collectAsMap();
+//               Date cd = new Date(System.currentTimeMillis());
+//               
+//               try{
+//                   DatabaseHelper dh = DatabaseHelper.openDB();
+//                   for(Integer user : val.keySet()){
+//                       dh.insertUserActivity(user, cd, val.get(user));
+//                   }
+//                   dh.close();
+//                   
+//               }catch(SQLException e){
+//                    e.printStackTrace();
+//               }
+//               return null;
+//            }
+//        });
+//        
+
+        tweets.flatMap(new KeywordMapper())
+              .flatMapToPair(new PairFlatMapFunction<Tuple2<Status, String>, String, Integer>() {
 
             @Override
-            public Integer call(Integer t1, Integer t2) throws Exception {
-                return t1 + t2;
+            public Iterable<Tuple2<String, Integer>> call(Tuple2<Status, String> t) throws Exception {
+                return Collections.singletonList(new Tuple2<>(t._2,Integer.valueOf(1)));
             }
-        });
-      
-        tagsc.foreach(new Function<JavaPairRDD<String, Integer>, Void>() {
+        }).reduceByKey(new Function2<Integer, Integer, Integer>(){
             @Override
-            public Void call(JavaPairRDD<String, Integer> t1) throws Exception {
-               Map<String,Integer> m = t1.collectAsMap();
-               for(String s : m.keySet()) {
-                   System.out.println("s: "+s+" "+m.get(s));
-               }
-                System.out.println("==== MARK ==== ");
-               return null;
-            }
-        });
+            public Integer call(Integer t1, Integer t2) throws Exception {
+                return t1+t2;
+            } 
+        }).print();
+        
+        
+        
+        
+//        JavaPairDStream<String,Integer> tagsc = tags.reduceByKey(new Function2<Integer, Integer, Integer>() {
+//
+//            @Override
+//            public Integer call(Integer t1, Integer t2) throws Exception {
+//                return t1 + t2;
+//            }
+//        });
+//      
+//        tagsc.foreach(new Function<JavaPairRDD<String, Integer>, Void>() {
+//            @Override
+//            public Void call(JavaPairRDD<String, Integer> t1) throws Exception {
+//               Map<String,Integer> m = t1.collectAsMap();
+//               
+//               DatabaseHelper dh = DatabaseHelper.openDB();
+//               for(String s : m.keySet()) {
+//                   
+//                   int id = dh.findKeyword(s);
+//                   dh.insertKeywordUsage(id, m.get(s).intValue());
+//                   System.out.println("s: "+s+" "+m.get(s));
+//               }
+//               dh.close();
+//                System.out.println("==== MARK ==== ");
+//               return null;
+//            }
+//        });
        
         ssc.start();
         ssc.awaitTermination();
