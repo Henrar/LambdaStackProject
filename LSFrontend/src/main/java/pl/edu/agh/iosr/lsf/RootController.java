@@ -100,18 +100,21 @@ public class RootController {
     @RequestMapping(value="keyword/gen",method = RequestMethod.GET)
     public String genKeywords(@RequestParam(value = "n") int n) {
         
+         int c =0;
         try{
             for( String[] s : dh.listKeywords()) {
-                dh.deleteKeyword(s[0]);
+                dh.deleteKeyword(s[1]);
             }
-            for( String s : DatabaseHelper.loadWords()) {
+           
+            for( String s : DatabaseHelper.loadWords().subList(0, n)) {
                 dh.insertKeyword(s, "positive");
+                c++;
             }
         }catch(SQLException e){
-            
+           return e.getMessage();
         }
         
-        return "OK";
+        return "OK "+c;
     }
     //</editor-fold>
     
